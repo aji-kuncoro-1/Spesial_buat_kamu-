@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { 
-            /* Background Bunga Estetik */
             background-image: url('https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=1480&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
@@ -45,31 +44,34 @@
             display: none; max-width: 380px; width: 85%; 
             box-sizing: border-box;
             backdrop-filter: blur(5px);
+            position: relative; /* Penting agar tombol bisa diposisikan absolut terhadap kotak ini */
+            min-height: 400px;
         }
 
         h1 { color: #d1618a; font-size: 1.4rem; min-height: 80px; margin: 20px 0; line-height: 1.5; }
         .stiker { width: 130px; height: 130px; object-fit: contain; }
         
-        .btn { padding: 15px 25px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
+        #tombolPilihan { 
+            display: none; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-top: 20px;
+            min-height: 50px; /* Memberi ruang untuk tombol bergerak */
+        }
+
+        .btn { padding: 12px 25px; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
         .btn-mulai { background: white; color: #ff6b81; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .btn-ya { background: #ff6b81; color: white; }
         
-        /* Tombol 'Gak' dengan transisi halus saat pindah */
         .btn-tidak { 
             background: #bdc3c7; 
             color: white; 
-            position: relative; 
-            transition: all 0.2s ease;
-            z-index: 999;
+            position: relative; /* Default awal */
+            transition: all 0.15s ease-out;
         }
         
         .bounce { animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
-
-        @media screen and (max-width: 400px) {
-            h2 { font-size: 1.1rem; }
-            h1 { font-size: 1.2rem; }
-        }
     </style>
 </head>
 <body>
@@ -87,7 +89,7 @@
     <div class="container" id="konten">
         <img id="gambar" class="stiker" src="Gambar Pose Tubuh.gif">
         <h1 id="teksUcapan"></h1>
-        <div id="tombolPilihan" style="display: none; justify-content: center; gap: 15px;">
+        <div id="tombolPilihan">
             <button class="btn btn-ya" onclick="terima()">MAU!</button>
             <button class="btn btn-tidak" id="btnNo" onmouseover="lari()" onclick="lari()">Gak</button>
         </div>
@@ -141,16 +143,24 @@
             }
         }
 
-        // Fungsi Lari: Hanya berpindah posisi tanpa mengubah teks
+        // LOGIKA BARU: Tombol 'Gak' hanya lari di dalam kotak putih
         function lari() {
-            // Memberikan jarak agar tidak terlalu mepet ke pinggir layar hp
-            const padding = 50; 
-            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - padding);
-            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - padding);
+            const container = document.getElementById("konten");
+            const rect = container.getBoundingClientRect(); // Ambil ukuran kotak putih
             
-            btnNo.style.position = "fixed"; 
-            btnNo.style.left = x + "px"; 
-            btnNo.style.top = y + "px";
+            // Tentukan batas aman (supaya tidak menutupi teks/gambar)
+            // Tombol akan bergerak di area bawah kotak
+            const padding = 20;
+            const maxW = rect.width - btnNo.offsetWidth - padding;
+            const maxH = rect.height - btnNo.offsetHeight - padding;
+
+            // Hitung posisi random relatif terhadap kotak putih
+            const randomX = Math.floor(Math.random() * maxW);
+            const randomY = Math.floor(Math.random() * maxH);
+
+            btnNo.style.position = "absolute"; 
+            btnNo.style.left = randomX + "px"; 
+            btnNo.style.top = randomY + "px";
         }
 
         function terima() {
@@ -159,7 +169,7 @@
 
             Swal.fire({
                 title: 'YEAYYY! ' + emojiHati,
-                text: 'Kirim jawaban kamu ke WhatsApp aku ya!',
+                text: 'Kirim jawaban kamu ke WhatsApp ya!',
                 icon: 'success',
                 confirmButtonText: 'Kirim Sekarang 🚀',
                 confirmButtonColor: '#ff6b81'
